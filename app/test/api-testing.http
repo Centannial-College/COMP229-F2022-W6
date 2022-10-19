@@ -22,3 +22,38 @@ GET http://localhost:3000/api/auth/logout HTTP/1.1
 content-type: application/json
 
 
+###
+GET http://localhost:3000/api/movies/list HTTP/1.1
+content-type: application/json
+
+###
+GET http://localhost:3000/api/movies/634cb0ee463ee7324549eb2d HTTP/1.1
+content-type: application/json
+
+###
+POST http://localhost:3000/api/movies/add HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Neverending Story 2", 
+    "year": "1976", 
+    "director": "Michael Bane",
+    "genre": "Fantasy",
+    "runtime": 120
+}
+
+###
+PUT http://localhost:3000/api/movies/edit/634cb0ee463ee7324549eb2d HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Neverending Story 2", 
+    "year": "1977", 
+    "director": "Michael Bane",
+    "genre": "Fantasy",
+    "runtime": 120
+}
+
+###
+DELETE http://localhost:3000/api/movies/delete/634cb0ee463ee7324549eb2d HTTP/1.1
+content-type: application/json
