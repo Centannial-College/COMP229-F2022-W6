@@ -14,6 +14,13 @@ import passport from 'passport';
 import passportLocal from 'passport-local';
 import flash from 'connect-flash';
 
+//modules for JWT support
+import cors from 'cors';
+import passportJWT from 'passport-jwt';
+
+let JWTStrategy = passportJWT.Strategy;
+let ExtractJWT = passportJWT.ExtractJwt;
+
 // Auth Step 2 - defien our auth strategy
 let localStrategy = passportLocal.Strategy;
 
@@ -30,6 +37,10 @@ import { MongoURI, Secret } from '../config/config.js';
 import indexRouter from './routes/index.route.server.js'
 import movieRouter from './routes/movies.route.server.js';
 import authRouter from './routes/auth.route.server.js';
+
+
+// Import API Routes
+import authApiRouter from './routes/api/auth-api.router.server.js';
 
 // Instantiate Express Application
 const app = express();
@@ -56,6 +67,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname,'../public')));
 
 
+app.use(cors()); // adds CORS (cross-origin resource sharing) - To be removed on PRODUCTION
+
 // Auth Step 4 - Setup Express Session
 app.use(session({
     secret: Secret,
@@ -77,11 +90,30 @@ passport.use(User.createStrategy());
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+let jwtOptions = {
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: Secret
+}
+
+// Setup JWT Strategy
+let strategy = new JWTStrategy(jwtOptions, (jwt_payload, done) => {
+    User.findById(jwt_payload.id)
+        .then(user => {
+            return done(null, user)
+        })
+        .catch(err => {
+            return done(err, false)
+        });
+});
+
+passport.use(strategy);
+
+
 // Use Routes
 app.use('/', indexRouter);
 app.use('/', movieRouter);
 app.use('/', authRouter);
-
+app.use('/api/auth', authApiRouter);
 
 export default app;
 
